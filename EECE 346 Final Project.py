@@ -110,10 +110,10 @@ for i in keys:
     CritValue[i] = tTable[i][nValue - 2]
 
 # Standard error of the mean {Sample standard deviation and nValue}
-
+    StandError = Deviation / math.sqrt(nValue)
 
 # Margin of errors {Critical values and Standard error of the mean}
-
+    MarginError[i] = CritValue[i] * StandError
 
 # Confidence intervals {xBar and Magin of errors} 
 
