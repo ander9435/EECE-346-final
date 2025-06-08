@@ -153,10 +153,6 @@ for i in keys:
     for i in keys:
         MarginError[i] = CritValue[i] * StandError
 
-# Confidence intervals {xBar and Magin of errors} 
-for i in keys:
-    (f"{xBar - MarginError[i]}, {xBar + MarginError[i]}")
-
-print(f"Sample list:{Samples}, n:{nValue}, Sample mean:{xBar}, standard deviation:{Deviation}, {CritValue}, Margin error:{MarginError}")
+print(f"Sample list:{Samples}, n:{nValue}, Sample mean:{xBar}, standard deviation:{Deviation}, Critical values:{CritValue}, Margin error:{MarginError}")
 
 GraphGeneration()
