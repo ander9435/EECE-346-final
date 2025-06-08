@@ -1,4 +1,4 @@
-#Ethan Anderson, John Lewis, and Israella Mayer
+﻿#Ethan Anderson, John Lewis, and Israella Mayer
 #EECE 346 - Probability and Statistics for Electrical and Computer Engineering
 #Final Project
 #Due: 6/13/2025
@@ -18,6 +18,7 @@ keys = ["C90", "C95", "C99"]
 CritValue = {"C90": 0.0, "C95": 0.0, "C99": 0.0}
 StandError = 0.0
 MarginError = {"C90": 0.0, "C95": 0.0, "C99": 0.0}
+
 tTable = {"C90": [
     6.314, 2.920, 2.353, 2.132, 2.015, 1.943, 1.895, 1.860, 1.833, 1.812,
     1.796, 1.782, 1.771, 1.761, 1.753, 1.746, 1.740, 1.734, 1.729, 1.725, 
@@ -34,6 +35,44 @@ tTable = {"C90": [
     2.831, 2.819, 2.807, 2.797, 2.787, 2.779, 2.771, 2.763, 2.756, 2.750
     ]}
 
+#Data must be of datatype np.array and ci and exmean are integers. 
+def GraphGeneration(ci, exmean, data): 
+    # Sample stats
+    sample_mean = np.mean(data)
+    sample_std = np.std(data, ddof=1)
+    n = len(data)
+
+    # 95% Confidence Interval for the mean
+    confidence = ci
+    alpha = 1 - confidence
+    t_crit = stats.t.ppf(1 - alpha/2, df=n - 1)
+    margin_error = t_crit * sample_std / np.sqrt(n)
+    ci_lower = sample_mean - margin_error
+    ci_upper = sample_mean + margin_error
+
+    # Plot the Gaussian (normal) distribution
+    x_vals = np.linspace(sample_mean - 4*sample_std, sample_mean + 4*sample_std, 300)
+    pdf = stats.norm.pdf(x_vals, sample_mean, sample_std)
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(x_vals, pdf, label='Fitted Normal Distribution', color='gray')
+
+    # Fill the 95% confidence interval
+    plt.axvline(ci_lower, color='blue', linestyle='--', label=f'{int(ci*100)}% CI')
+    plt.axvline(ci_upper, color='blue', linestyle='--')
+    plt.fill_between(x_vals, 0, pdf, where=(x_vals >= ci_lower) & (x_vals <= ci_upper), color='blue', alpha=0.2)
+
+    # Expected and Sample means
+    plt.axvline(exmean, color='red', linestyle='--', label='Expected Mean (μ₀)')
+    plt.axvline(sample_mean, color='black', linestyle='-', label='Sample Mean')
+
+    # Labels and legend
+    plt.title(f"Sample Mean, {int(ci*100)}% Confidence Interval, and Expected Mean on Fitted Normal Distribution")
+    plt.xlabel("Value")
+    plt.ylabel("Probability Density")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 def User_Values():
     global Samples
