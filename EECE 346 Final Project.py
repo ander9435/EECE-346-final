@@ -4,10 +4,10 @@
 #Due: 6/13/2025
 
 import random as rd
-import matplotlib.pyplot as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sb
-import scipy as sp
+from scipy.stats import t
 import math
 
 Samples = []
@@ -36,38 +36,36 @@ tTable = {"C90": [
     ]}
 
 #Data must be of datatype np.array and ci and exmean are integers. 
-def GraphGeneration(ci, exmean, data): 
-    # Sample stats
-    sample_mean = np.mean(data)
-    sample_std = np.std(data, ddof=1)
-    n = len(data)
-
-    # 95% Confidence Interval for the mean
-    confidence = ci
-    alpha = 1 - confidence
-    t_crit = stats.t.ppf(1 - alpha/2, df=n - 1)
-    margin_error = t_crit * sample_std / np.sqrt(n)
-    ci_lower = sample_mean - margin_error
-    ci_upper = sample_mean + margin_error
+def GraphGeneration(): 
 
     # Plot the Gaussian (normal) distribution
-    x_vals = np.linspace(sample_mean - 4*sample_std, sample_mean + 4*sample_std, 300)
-    pdf = stats.norm.pdf(x_vals, sample_mean, sample_std)
+    x_vals = np.linspace(xBar - 3*Deviation, xBar + 3*Deviation, 300)
+    pdf = t.pdf(x_vals, nValue - 1, xBar, Deviation)
 
     plt.figure(figsize=(10, 5))
-    plt.plot(x_vals, pdf, label='Fitted Normal Distribution', color='gray')
+    plt.plot(x_vals, pdf, label='T Distribution', color='gray')
+
+    # Fill the 90% confidence interval
+    plt.axvline(xBar-MarginError["C90"], color='purple', linestyle='--', label=f'90% CI')
+    plt.axvline(xBar+MarginError["C90"], color='purple', linestyle='--')
+    plt.fill_between(x_vals, 0, pdf, where=(x_vals >= xBar-MarginError["C90"]) & (x_vals <= xBar+MarginError["C90"]), color='purple', alpha=0.2)
 
     # Fill the 95% confidence interval
-    plt.axvline(ci_lower, color='blue', linestyle='--', label=f'{int(ci*100)}% CI')
-    plt.axvline(ci_upper, color='blue', linestyle='--')
-    plt.fill_between(x_vals, 0, pdf, where=(x_vals >= ci_lower) & (x_vals <= ci_upper), color='blue', alpha=0.2)
+    plt.axvline(xBar-MarginError["C95"], color='blue', linestyle='--', label=f'95% CI')
+    plt.axvline(xBar+MarginError["C95"], color='blue', linestyle='--')
+    plt.fill_between(x_vals, 0, pdf, where=(x_vals >= xBar-MarginError["C95"]) & (x_vals <= xBar+MarginError["C95"]), color='blue', alpha=0.2)
+
+    # Fill the 99% confidence interval
+    plt.axvline(xBar-MarginError["C99"], color='red', linestyle='--', label=f'99% CI')
+    plt.axvline(xBar+MarginError["C99"], color='red', linestyle='--')
+    plt.fill_between(x_vals, 0, pdf, where=(x_vals >= xBar-MarginError["C99"]) & (x_vals <= xBar+MarginError["C99"]), color='purple', alpha=0.2)
+
 
     # Expected and Sample means
-    plt.axvline(exmean, color='red', linestyle='--', label='Expected Mean (μ₀)')
-    plt.axvline(sample_mean, color='black', linestyle='-', label='Sample Mean')
+    plt.axvline(xBar, color='black', linestyle='-', label='Sample Mean')
 
     # Labels and legend
-    plt.title(f"Sample Mean, {int(ci*100)}% Confidence Interval, and Expected Mean on Fitted Normal Distribution")
+    plt.title(f"Sample Mean, Confidence Interval and Fitted Normal Distribution")
     plt.xlabel("Value")
     plt.ylabel("Probability Density")
     plt.legend()
@@ -101,24 +99,23 @@ def Random_Values():
     global Samples
     global nValue
 
-    nValue = rd.randint(1, 30)
-    start = rd.randint(10, 1000)
-    
-    for i in range(nValue):
-        num = start * rd.random()
-        num = round(num, 4)
-        Samples.append(num)
+    nValue = rd.randint(10, 30)
+    mean = rd.randint(0, 50)
+    sd = rd.randint(0, 5)
 
-    random_float = rd.random()
+
+    Samples = np.random.normal(mean, sd, nValue)
+
+    print(f"{mean}, {sd}")
 
     return Samples, nValue
 
     
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# print("Welcome to an auto confidence interval calculator\n" \
-# f"This calculator takes in a set of sample values and outputs the mean confidence interval for the 90%, 95%, and 99% confidence intervals\n" \
-# "You can input your own sample values, or have the calculator demontrate using randomly generated values\n")
+print("Welcome to an auto confidence interval calculator\n" \
+f"This calculator takes in a set of sample values and outputs the mean confidence interval for the 90%, 95%, and 99% confidence intervals\n" \
+"You can input your own sample values, or have the calculator demontrate using randomly generated values\n")
 Choice = input("If you want to use your own data, enter 'S'. If your want a demonstration with randomly generated values, enter 'R': ")
 
 while True:
@@ -134,15 +131,16 @@ while True:
     else:
         Choice = input("Incorrect choice, please enter an 'S' for your own data or a 'R' for an randomly generated example: ")
 
+# Sample mean {Samples and nValue}
 Sum = np.sum(Samples)
 xBar = Sum/nValue
 xBar = round(xBar, 4)
 
 # Sample standard deviation {Samples and xBar}
 for i in Samples:
-    Deviation += (i * xBar) ** 2
+    Deviation += (i - xBar) ** 2
 
-Deviation = math.sqrt(Deviation)
+Deviation = (math.sqrt(Deviation / (nValue - 1)))
 
 # Critical value {nValue, tTable_90, tTable_95, and tTable_99}
 for i in keys:
@@ -152,8 +150,13 @@ for i in keys:
     StandError = Deviation / math.sqrt(nValue)
 
 # Margin of errors {Critical values and Standard error of the mean}
-    MarginError[i] = CritValue[i] * StandError
+    for i in keys:
+        MarginError[i] = CritValue[i] * StandError
 
 # Confidence intervals {xBar and Magin of errors} 
+for i in keys:
+    (f"{xBar - MarginError[i]}, {xBar + MarginError[i]}")
 
-print(f"{Samples}, {nValue}, {xBar}, {Deviation}, {CritValue}, ")
+print(f"Sample list:{Samples}, n:{nValue}, Sample mean:{xBar}, standard deviation:{Deviation}, {CritValue}, Margin error:{MarginError}")
+
+GraphGeneration()
