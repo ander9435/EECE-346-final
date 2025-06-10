@@ -1,0 +1,7 @@
+Introduction & Objective 
+
+Probability and statistics are fundamental tools for Electrical and Computer Engineers, used in analyzing data, understanding variability, designing systems, and making decisions under uncertainty. This project provided an opportunity to apply the concepts and software tools learned to a problem or dataset of interest within the ECE domain. 
+
+Project Scope & Topic Selection 
+
+Our chosen topic is to model the reliability and accuracy of components like resistors, capacitors, and transistors through confidence intervals. By taking a set of samples from the available components in inventory, we can calculate confidence intervals with varying alpha values and degrees of freedom. The random variables we will be working with are measurements of the different components. For example, the resistance of resistors in ohms, the capacitance of capacitors in farads, and the transconductance of transistors in siemens are all random variables which we will be able to create confidence intervals for using our Python program. We will obtain our data by taking measurements for different values of components which we will borrow from the components inventory. We will use the corresponding tools, i.e. multimeters and oscilloscopes, to sample the relevant data. We aim to quantify the deviation in our components from their intended values using confidence intervals. Using graphical representations and the matplotlib library, we will generate interpretable and visual graphics for the data and confidence intervals. 
